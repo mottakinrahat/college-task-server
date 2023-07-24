@@ -33,12 +33,7 @@ async function run() {
     const userCollection = client.db('collegeTask').collection('userInfo')
     const ratingCollection = client.db('collegeTask').collection('ratingReview')
 
-    app.get('/clgInfo', async (req, res) => {
-      const result = await collegeCollection.find().toArray();
-      res.send(result);
-    })
-    app.get('/clgInfo', async (req, res) => {
-      console.log(req.query);
+    app.get('clgInfo', async (req, res) => {
       const result = await collegeCollection.find().toArray();
       res.send(result);
     })
@@ -48,62 +43,60 @@ async function run() {
       res.send(result);
     })
 
- 
-    app.post('/candidateData',async(req, res) => {
-    const body=req.body;
-    const result=candidateInfoCollection.insertOne(body)
-    res.send(result);
-    })
-    app.get('candidateData',async(req, res) => {
-    const result=await candidateInfoCollection.find().toArray();
-    res.send(result);
-    })
-    app.get('/candidateData/:id',async(req, res) => {
-      id=req.params.id;
-    const result=await candidateInfoCollection.findOne({ _id: new ObjectId(id) });
-    res.send(result);
-    })
-    app.get('/candidateData',async(req, res) => {
-      let query={};
-      if(req.query?.email){
-      query={email:req.query.email}
-      }
-      const result=await candidateInfoCollection.find(query).toArray();
+
+    app.post('/candidateData', async (req, res) => {
+      const body = req.body;
+      const result = candidateInfoCollection.insertOne(body)
       res.send(result);
-      
+    })
+    app.get('candidateData', async (req, res) => {
+      const result = await candidateInfoCollection.find().toArray();
+      res.send(result);
+    })
+    app.get('/candidateData/:id', async (req, res) => {
+      id = req.params.id;
+      const result = await candidateInfoCollection.findOne({ _id: new ObjectId(id) });
+      res.send(result);
+    })
+    app.get('/candidateData', async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email }
+      }
+      const result = await candidateInfoCollection.find(query).toArray();
+      res.send(result);
+
     })
 
-    app.post('/ratingreview',async(req, res) => {
-    const body=req.body;
-    const result=await ratingCollection.insertOne(body)
-    res.send(result);
+    app.post('/ratingreview', async (req, res) => {
+      const body = req.body;
+      const result = await ratingCollection.insertOne(body)
+      res.send(result);
     })
-    app.get('/ratingreview',async(req, res) => {
-    const result=await ratingCollection.find().toArray();
-    res.send(result);
+    app.get('/ratingreview', async (req, res) => {
+      const result = await ratingCollection.find().toArray();
+      res.send(result);
     })
-    app.get('/collegeSearch', async (req, res) => {
+
+    app.get('/clgInfo', async (req, res) => {
       const searchQuery = req.query.q;
     
-      if (!searchQuery) {
-        return res.status(400).json({ error: 'Search query is required.' });
-      }
+      // Create a regular expression to perform a case-insensitive search
+      const regex = new RegExp(searchQuery, 'i');
+    
+      // Search for colleges with names matching the search query
+      const query = { college_name: regex };
     
       try {
-        const regex = new RegExp(searchQuery, 'i');
-        const result = await collegeCollection.find({ collegeName: regex }).toArray();
-    
-        if (result.length === 0) {
-          return res.status(404).json({ error: 'No matching college found.' });
-        }
-    
-        res.json(result);
+        const result = await collegeCollection.find(query).toArray();
+        res.send(result);
       } catch (error) {
-        res.status(500).json({ error: 'An error occurred while searching for colleges.' });
+        console.error('Error searching for colleges:', error);
+        res.status(500).json({ error: 'Server Error' });
       }
     });
 
-    
+
 
 
     // Send a ping to confirm a successful connection
